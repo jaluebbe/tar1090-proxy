@@ -72,6 +72,18 @@ async def proxy_chunks(request: Request, path: str):
     return await proxy_request(request, f"{TARGET_URL}/chunks", path)
 
 
+@app.api_route("/upintheair.json", methods=["GET"])
+async def upintheair(request: Request):
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        url = f"{TARGET_URL}/upintheairs.json"
+        response = await client.get(url)
+        return Response(
+            content=response.content,
+            media_type=response.headers.get("Content-Type", "application/json"),
+            status_code=response.status_code,
+        )
+
+
 @app.middleware("http")
 async def add_gzip_header(request: Request, call_next):
     response = await call_next(request)
