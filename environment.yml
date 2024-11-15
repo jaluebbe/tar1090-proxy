@@ -1,0 +1,8 @@
+name: tar1090_proxy
+dependencies:
+  - python>=3.11
+  - pip
+  - pip:
+    - fastapi
+    - uvicorn
+    - httpx
