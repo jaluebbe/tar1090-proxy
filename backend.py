@@ -12,7 +12,7 @@ app = FastAPI()
 TAR1090_DB_PATH = Path("../tar1090-db/db")
 TAR1090_PATH = Path("../tar1090/html")
 CONFIG_FILE_PATH = Path("./config.js")  # Set to None if not provided
-TARGET_URL = "http://jean-luc:8080"
+TARGET_URL = "http://my-dump1090-host:8080"
 
 
 @app.get("/", include_in_schema=False)
