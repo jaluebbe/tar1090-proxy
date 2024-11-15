@@ -75,7 +75,7 @@ async def proxy_chunks(request: Request, path: str):
 @app.api_route("/upintheair.json", methods=["GET"])
 async def upintheair(request: Request):
     async with httpx.AsyncClient(follow_redirects=True) as client:
-        url = f"{TARGET_URL}/upintheairs.json"
+        url = f"{TARGET_URL}/upintheair.json"
         response = await client.get(url)
         return Response(
             content=response.content,
