@@ -12,7 +12,7 @@ app = FastAPI()
 TAR1090_DB_PATH = Path("../tar1090-db/db")
 TAR1090_PATH = Path("../tar1090/html")
 CONFIG_FILE_PATH = Path("./config.js")  # Set to None if not provided
-TARGET_URL = "http://my-dump1090-host:8080"
+TARGET_URL = "http://jean-luc:8080"
 
 
 @app.get("/", include_in_schema=False)
@@ -70,6 +70,18 @@ async def proxy_data(request: Request, path: str):
 @app.api_route("/chunks/{path:path}", methods=["GET"])
 async def proxy_chunks(request: Request, path: str):
     return await proxy_request(request, f"{TARGET_URL}/chunks", path)
+
+
+@app.api_route("/upintheair.json", methods=["GET"])
+async def upintheair(request: Request):
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+        url = f"{TARGET_URL}/upintheairs.json"
+        response = await client.get(url)
+        return Response(
+            content=response.content,
+            media_type=response.headers.get("Content-Type", "application/json"),
+            status_code=response.status_code,
+        )
 
 
 @app.middleware("http")
