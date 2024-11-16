@@ -6,3 +6,4 @@ DefaultCenterLon = 4.431;
 DefaultZoomLvl   = 8;
 useRouteAPI = true;
 routeApiUrl = "https://api.adsb.lol/api/0/routeset";
+PageName = "my-dump1090-host";
