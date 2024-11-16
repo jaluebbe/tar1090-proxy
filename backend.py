@@ -39,10 +39,15 @@ async def proxy_request(
         ]
     )
     url = f"{base_url}/{path}?{query_params}"
+    print(url)
     try:
         async with httpx.AsyncClient(follow_redirects=True) as client:
             response = await client.get(
-                url, headers={"Accept-Encoding": "gzip"}
+                url,
+                headers={
+                    "Accept-Encoding": "gzip",
+                    "User-Agent": "Mozilla/5.0",
+                },
             )
             headers = dict(response.headers)
             if headers.get("content-encoding") == "gzip":
@@ -69,6 +74,7 @@ async def proxy_re_api(request: Request):
 
 @app.api_route("/data/{path:path}", methods=["GET"])
 async def proxy_data(request: Request, path: str):
+    print(path)
     return await proxy_request(request, f"{TARGET_URL}/data", path)
 
 
@@ -81,7 +87,7 @@ async def proxy_chunks(request: Request, path: str):
 async def upintheair(request: Request):
     async with httpx.AsyncClient(follow_redirects=True) as client:
         url = f"{TARGET_URL}/upintheair.json"
-        response = await client.get(url)
+        response = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
         return Response(
             content=response.content,
             media_type=response.headers.get("Content-Type", "application/json"),
