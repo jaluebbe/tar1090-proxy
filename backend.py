@@ -39,22 +39,27 @@ async def proxy_request(
         ]
     )
     url = f"{base_url}/{path}?{query_params}"
-    async with httpx.AsyncClient(follow_redirects=True) as client:
-        response = await client.get(url, headers={"Accept-Encoding": "gzip"})
-        headers = dict(response.headers)
-        if headers.get("content-encoding") == "gzip":
-            gzip_buffer = BytesIO()
-            with gzip.GzipFile(mode="wb", fileobj=gzip_buffer) as gz_file:
-                gz_file.write(response.content)
-            content = gzip_buffer.getvalue()
-            headers["content-length"] = str(len(content))
-        else:
-            content = response.content
-    return Response(
-        content=content,
-        status_code=response.status_code,
-        headers=headers,
-    )
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            response = await client.get(
+                url, headers={"Accept-Encoding": "gzip"}
+            )
+            headers = dict(response.headers)
+            if headers.get("content-encoding") == "gzip":
+                gzip_buffer = BytesIO()
+                with gzip.GzipFile(mode="wb", fileobj=gzip_buffer) as gz_file:
+                    gz_file.write(response.content)
+                content = gzip_buffer.getvalue()
+                headers["content-length"] = str(len(content))
+            else:
+                content = response.content
+        return Response(
+            content=content,
+            status_code=response.status_code,
+            headers=headers,
+        )
+    except httpx.ConnectTimeout:
+        return Response(content="Gateway Timeout", status_code=504)
 
 
 @app.api_route("/re-api/", methods=["GET"])
@@ -86,7 +91,10 @@ async def upintheair(request: Request):
 
 @app.middleware("http")
 async def add_gzip_header(request: Request, call_next):
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+    except httpx.ReadTimeout:
+        return Response(content="Gateway Timeout", status_code=504)
     if request.url.path.startswith("/db2/") and request.url.path.endswith(
         ".js"
     ):
